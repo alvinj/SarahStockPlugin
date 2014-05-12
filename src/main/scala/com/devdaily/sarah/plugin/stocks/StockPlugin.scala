@@ -2,6 +2,7 @@ package com.devdaily.sarah.plugin.stocks
 
 import com.devdaily.sarah.plugins._
 import com.devdaily.stocks.StockUtils
+import com.devdaily.sarah.actors.ShowTextWindow
 import java.io._
 import scala.collection.mutable
 import scala.collection.mutable.StringBuilder
@@ -77,13 +78,16 @@ class StockPlugin extends SarahPlugin {
       // 2) retrieve prices, 3) have sarah read prices
       val f = Future { brain ! PleaseSay("Stand by.") }
       populateStockPricesFromDataSource(system)
-      val f2 = Future { brain ! PleaseSay(createStringForSarahToSpeak()) }
+      val f2 = Future { brain ! PleaseSay(createStringForSarahToSpeak) }
       // TODO do i need to use Await on these futures?
+
+      // TODO improve this text
+      val f3 = Future { brain ! ShowTextWindow(createStringForSarahToSpeak) }
   }
   
   case class Stock(val symbol: String, val name: String, var price: String)
 
-  def createStringForSarahToSpeak(): String = {
+  def createStringForSarahToSpeak: String = {
       var sb = new StringBuilder
       stocks.foreach(s => sb.append("%s is $%s. ".format(s.name, s.price)) ) 
       sb.toString
