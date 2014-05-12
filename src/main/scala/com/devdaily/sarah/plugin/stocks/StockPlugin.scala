@@ -82,7 +82,7 @@ class StockPlugin extends SarahPlugin {
       // TODO do i need to use Await on these futures?
 
       // TODO improve this text
-      val f3 = Future { brain ! ShowTextWindow(createStringForSarahToSpeak) }
+      val f3 = Future { brain ! ShowTextWindow(createStringForSarahToShow) }
   }
   
   case class Stock(val symbol: String, val name: String, var price: String)
@@ -90,6 +90,12 @@ class StockPlugin extends SarahPlugin {
   def createStringForSarahToSpeak: String = {
       var sb = new StringBuilder
       stocks.foreach(s => sb.append("%s is $%s. ".format(s.name, s.price)) ) 
+      sb.toString
+  }
+  
+  def createStringForSarahToShow: String = {
+      var sb = new StringBuilder
+      stocks.foreach(s => sb.append("%s => $%s\n".format(s.name, s.price)) ) 
       sb.toString
   }
   
