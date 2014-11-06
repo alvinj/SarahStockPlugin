@@ -78,12 +78,18 @@ class StockPlugin extends SarahPlugin {
       // 2) retrieve prices, 3) have sarah read prices
       //val f = Future { brain ! PleaseSay("Stand by.") }
       brain ! PleaseSay("Stand by.")
-      populateStockPricesFromDataSource
       
-      // no longer speaking stock prices. (seems to slow)
-      //val f2 = Future { brain ! PleaseSay(createStringForSarahToSpeak) }
-
-      //val f3 = Future { brain ! ShowTextWindow(createStringForSarahToShow) }
+      // useful for debugging atm
+//      val result = """
+//<table>
+//<tr><td>Apple</td>  <td class="number">500.00</td></tr>
+//<tr><td>KKD</td>    <td class="number">20.00</td></tr>
+//<tr><td>Tesla</td>  <td class="number">340.00</td></tr>
+//<tr><td>Yahoo</td>  <td class="number">45.55</td></tr>
+//<table>"""
+//        brain ! ShowTextWindow(result)
+      
+      populateStockPricesFromDataSource
       brain ! PleaseSay("Here you go.")
       brain ! ShowTextWindow(createStringForSarahToShow)
   }
@@ -100,7 +106,7 @@ class StockPlugin extends SarahPlugin {
       var sb = new StringBuilder
       sb.append("<table>\n")
       for (s <- stocks) {
-          sb.append(s"<tr><td>${s.name}</td><td>${s.price}</td></tr>\n")
+          sb.append(s"""<tr><td>${s.name}</td><td class="number">${s.price}</td></tr>\n""")
       }
       sb.append("</table>\n")
       sb.toString
