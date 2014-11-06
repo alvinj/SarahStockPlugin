@@ -13,6 +13,8 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import net.liftweb.json.DefaultFormats
 import net.liftweb.json._
+import scala.concurrent.ExecutionContext.Implicits.global
+
 
 /**
  * 
@@ -47,7 +49,7 @@ class StockPlugin extends SarahPlugin {
   val phrasesICanHandle = mutable.Set[String]()
   var canonPluginDirectory = ""
 
-  // TODO a better way to handle this???
+  // TODO a better way to handle this?
   var stocks: Array[Stock] = _
  
   // sarah callbacks
@@ -59,8 +61,6 @@ class StockPlugin extends SarahPlugin {
   def getCanonPropertiesFilename: String = canonPluginDirectory + PluginUtils.getFilepathSeparator + relativePropertiesFileName
   def startPlugin {}  // no longer called
   
-  implicit val system = ActorSystem("StocksFutureSystem")
-
   // sarah callback. handle our phrases when we get them
   def handlePhrase(phrase: String): Boolean = {
       for (p <- phrasesICanHandle) {
@@ -76,16 +76,19 @@ class StockPlugin extends SarahPlugin {
       // TODO re-read config file here so i can add/rm stocks without restarting sarah
       // this should be 0) tell sarah to speak 'stand by' phrase, 1) get list of stocks, 
       // 2) retrieve prices, 3) have sarah read prices
-      val f = Future { brain ! PleaseSay("Stand by.") }
-      populateStockPricesFromDataSource(system)
-      val f2 = Future { brain ! PleaseSay(createStringForSarahToSpeak) }
-      // TODO do i need to use Await on these futures?
+      //val f = Future { brain ! PleaseSay("Stand by.") }
+      brain ! PleaseSay("Stand by.")
+      populateStockPricesFromDataSource
+      
+      // no longer speaking stock prices. (seems to slow)
+      //val f2 = Future { brain ! PleaseSay(createStringForSarahToSpeak) }
 
-      // TODO improve this text
-      val f3 = Future { brain ! ShowTextWindow(createStringForSarahToShow) }
+      //val f3 = Future { brain ! ShowTextWindow(createStringForSarahToShow) }
+      brain ! PleaseSay("Here you go.")
+      brain ! ShowTextWindow(createStringForSarahToShow)
   }
   
-  case class Stock(val symbol: String, val name: String, var price: String)
+  case class Stock(symbol: String, name: String, var price: String)
 
   def createStringForSarahToSpeak: String = {
       var sb = new StringBuilder
@@ -99,8 +102,8 @@ class StockPlugin extends SarahPlugin {
       sb.toString
   }
   
-  def populateStockPricesFromDataSource(implicit system: ActorSystem) {
-      // TODO is this the right way to call these? i think getStockPrice will block here
+  def populateStockPricesFromDataSource {
+      // TODO there are better ways to do this
       for(s <- stocks) {
           val future = Future {
               s.price = retrieveStockPrice(s.symbol)
