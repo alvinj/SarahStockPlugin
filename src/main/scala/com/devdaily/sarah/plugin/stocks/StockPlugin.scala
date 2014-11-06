@@ -90,15 +90,19 @@ class StockPlugin extends SarahPlugin {
   
   case class Stock(symbol: String, name: String, var price: String)
 
-  def createStringForSarahToSpeak: String = {
+  def createStringForSarahToSpeak = {
       var sb = new StringBuilder
       stocks.foreach(s => sb.append("%s is $%s. ".format(s.name, s.price)) ) 
       sb.toString
   }
   
-  def createStringForSarahToShow: String = {
+  def createStringForSarahToShow = {
       var sb = new StringBuilder
-      stocks.foreach(s => sb.append("%s => $%s\n".format(s.name, s.price)) ) 
+      sb.append("<table>\n")
+      for (s <- stocks) {
+          sb.append(s"<tr><td>${s.name}</td><td>${s.price}</td></tr>\n")
+      }
+      sb.append("</table>\n")
       sb.toString
   }
   
