@@ -77,7 +77,12 @@ class StockPlugin extends SarahPlugin {
       // this should be 0) tell sarah to speak 'stand by' phrase, 1) get list of stocks, 
       // 2) retrieve prices, 3) have sarah read prices
       //val f = Future { brain ! PleaseSay("Stand by.") }
-      brain ! PleaseSay("Stand by.")
+
+      // TODO working here
+      //brain ! PleaseSay("Stand by.")
+      PluginUtils.runInThread {
+          brain ! PleaseSay("Stand by.")
+      }
       
       // useful for debugging atm
 //      val result = """
@@ -88,10 +93,14 @@ class StockPlugin extends SarahPlugin {
 //<tr><td>Yahoo</td>  <td class="number">45.55</td></tr>
 //<table>"""
 //        brain ! ShowTextWindow(result)
-      
-      populateStockPricesFromDataSource
-      brain ! PleaseSay("Here you go.")
-      brain ! ShowTextWindow(createStringForSarahToShow)
+  
+      // TODO working here too
+      PluginUtils.runInThread {
+          populateStockPricesFromDataSource
+          brain ! PleaseSay("Here you go.")
+          brain ! ShowTextWindow(createStringForSarahToShow)
+      }
+
   }
   
   case class Stock(symbol: String, name: String, var price: String)
